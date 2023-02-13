@@ -22,7 +22,11 @@ export const routes = [
 
       const task = database.select("tasks", id);
 
-      return res.end(JSON.stringify(task));
+      if (!task) {
+        return res.writeHead(400).end("id not found");
+      } else {
+        return res.end(JSON.stringify(task));
+      }
     },
   },
   {
@@ -31,17 +35,23 @@ export const routes = [
     handler: (req, res) => {
       const { title, description } = req.body;
 
-      const task = {
-        id: randomUUID(),
-        title,
-        description,
-        completed_at: null,
-        created_at: Date(),
-      };
+      if (!title) {
+        return res.writeHead(400).end("Missing title");
+      } else if (!description) {
+        return res.writeHead(400).end("Missing description");
+      } else {
+        const task = {
+          id: randomUUID(),
+          title,
+          description,
+          completed_at: null,
+          created_at: Date(),
+        };
 
-      database.insert("tasks", task);
+        database.insert("tasks", task);
 
-      return res.writeHead(201).end();
+        return res.writeHead(201).end();
+      }
     },
   },
   {
@@ -51,13 +61,21 @@ export const routes = [
       const { id } = req.params;
       const { title, description } = req.body;
 
-      database.update("tasks", id, {
-        title,
-        description,
-        updated_at: Date(),
-      });
+      if (!title) {
+        return res.writeHead(400).end("Missing title");
+      } else if (!description) {
+        return res.writeHead(400).end("Missing description");
+      } else {
+        const response = database.update("tasks", id, {
+          title,
+          description,
+          updated_at: Date(),
+        });
 
-      return res.writeHead(204).end();
+        if (response === -1) return res.writeHead(400).end("id not found");
+
+        return res.writeHead(204).end();
+      }
     },
   },
   {
@@ -66,10 +84,12 @@ export const routes = [
     handler: (req, res) => {
       const { id } = req.params;
 
-      database.update("tasks", id, {
+      const response = database.update("tasks", id, {
         completed_at: Date(),
         updated_at: Date(),
       });
+
+      if (response === -1) return res.writeHead(400).end("id not found");
 
       return res.writeHead(204).end();
     },
@@ -80,7 +100,9 @@ export const routes = [
     handler: (req, res) => {
       const { id } = req.params;
 
-      database.delete("tasks", id);
+      const response = database.delete("tasks", id);
+
+      if (response === -1) return res.writeHead(400).end("id not found");
 
       return res.writeHead(204).end();
     },
