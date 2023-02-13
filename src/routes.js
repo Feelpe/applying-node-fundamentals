@@ -40,11 +40,11 @@ export const routes = [
     path: buildRoutePath("/tasks/:id"),
     handler: (req, res) => {
       const { id } = req.params;
-      const { name, email } = req.body;
+      const { title, description } = req.body;
 
       database.update("tasks", id, {
-        name,
-        email,
+        title,
+        description,
       });
 
       return res.writeHead(204).end();
