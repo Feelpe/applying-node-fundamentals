@@ -19,10 +19,16 @@ export class Database {
     fs.writeFile(databasePath, JSON.stringify(this.#database));
   }
 
-  select(table) {
-    let data = this.#database[table] ?? [];
+  select(table, id) {
+    if (id) {
+      const row = this.#database[table].find((row) => row.id === id);
 
-    return data;
+      return row;
+    } else {
+      let data = this.#database[table] ?? [];
+
+      return data;
+    }
   }
 
   insert(table, data) {

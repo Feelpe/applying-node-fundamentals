@@ -11,22 +11,31 @@ export const routes = [
     handler: (req, res) => {
       const tasks = database.select("tasks");
 
-      console.log(tasks);
-
       return res.end(JSON.stringify(tasks));
+    },
+  },
+  {
+    method: "GET",
+    path: buildRoutePath("/tasks/:id"),
+    handler: (req, res) => {
+      const { id } = req.params;
+
+      const task = database.select("tasks", id);
+
+      return res.end(JSON.stringify(task));
     },
   },
   {
     method: "POST",
     path: buildRoutePath("/tasks"),
     handler: (req, res) => {
-      const { title, description, completed_at, created_at, updated_at } =
-        req.body;
+      const { title, description } = req.body;
 
       const task = {
         id: randomUUID(),
         title,
         description,
+        completed_at: null,
         created_at: Date(),
       };
 
@@ -45,6 +54,21 @@ export const routes = [
       database.update("tasks", id, {
         title,
         description,
+        updated_at: Date(),
+      });
+
+      return res.writeHead(204).end();
+    },
+  },
+  {
+    method: "PATCH",
+    path: buildRoutePath("/tasks/:id/complete"),
+    handler: (req, res) => {
+      const { id } = req.params;
+
+      database.update("tasks", id, {
+        completed_at: Date(),
+        updated_at: Date(),
       });
 
       return res.writeHead(204).end();
